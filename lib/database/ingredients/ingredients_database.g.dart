@@ -19,14 +19,14 @@ class $IngredientsTable extends Ingredients
   late final GeneratedColumn<String> data = GeneratedColumn<String>(
       'data', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _lastUpdateMeta =
-      const VerificationMeta('lastUpdate');
+  static const VerificationMeta _lastFetchedMeta =
+      const VerificationMeta('lastFetched');
   @override
-  late final GeneratedColumn<DateTime> lastUpdate = GeneratedColumn<DateTime>(
-      'last_update', aliasedName, false,
+  late final GeneratedColumn<DateTime> lastFetched = GeneratedColumn<DateTime>(
+      'last_fetched', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [id, data, lastUpdate];
+  List<GeneratedColumn> get $columns => [id, data, lastFetched];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -48,13 +48,13 @@ class $IngredientsTable extends Ingredients
     } else if (isInserting) {
       context.missing(_dataMeta);
     }
-    if (data.containsKey('last_update')) {
+    if (data.containsKey('last_fetched')) {
       context.handle(
-          _lastUpdateMeta,
-          lastUpdate.isAcceptableOrUnknown(
-              data['last_update']!, _lastUpdateMeta));
+          _lastFetchedMeta,
+          lastFetched.isAcceptableOrUnknown(
+              data['last_fetched']!, _lastFetchedMeta));
     } else if (isInserting) {
-      context.missing(_lastUpdateMeta);
+      context.missing(_lastFetchedMeta);
     }
     return context;
   }
@@ -69,8 +69,8 @@ class $IngredientsTable extends Ingredients
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       data: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}data'])!,
-      lastUpdate: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}last_update'])!,
+      lastFetched: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}last_fetched'])!,
     );
   }
 
@@ -83,15 +83,17 @@ class $IngredientsTable extends Ingredients
 class IngredientTable extends DataClass implements Insertable<IngredientTable> {
   final int id;
   final String data;
-  final DateTime lastUpdate;
+
+  /// The date when the ingredient was last fetched from the server
+  final DateTime lastFetched;
   const IngredientTable(
-      {required this.id, required this.data, required this.lastUpdate});
+      {required this.id, required this.data, required this.lastFetched});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['data'] = Variable<String>(data);
-    map['last_update'] = Variable<DateTime>(lastUpdate);
+    map['last_fetched'] = Variable<DateTime>(lastFetched);
     return map;
   }
 
@@ -99,7 +101,7 @@ class IngredientTable extends DataClass implements Insertable<IngredientTable> {
     return IngredientsCompanion(
       id: Value(id),
       data: Value(data),
-      lastUpdate: Value(lastUpdate),
+      lastFetched: Value(lastFetched),
     );
   }
 
@@ -109,7 +111,7 @@ class IngredientTable extends DataClass implements Insertable<IngredientTable> {
     return IngredientTable(
       id: serializer.fromJson<int>(json['id']),
       data: serializer.fromJson<String>(json['data']),
-      lastUpdate: serializer.fromJson<DateTime>(json['lastUpdate']),
+      lastFetched: serializer.fromJson<DateTime>(json['lastFetched']),
     );
   }
   @override
@@ -118,22 +120,22 @@ class IngredientTable extends DataClass implements Insertable<IngredientTable> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'data': serializer.toJson<String>(data),
-      'lastUpdate': serializer.toJson<DateTime>(lastUpdate),
+      'lastFetched': serializer.toJson<DateTime>(lastFetched),
     };
   }
 
-  IngredientTable copyWith({int? id, String? data, DateTime? lastUpdate}) =>
+  IngredientTable copyWith({int? id, String? data, DateTime? lastFetched}) =>
       IngredientTable(
         id: id ?? this.id,
         data: data ?? this.data,
-        lastUpdate: lastUpdate ?? this.lastUpdate,
+        lastFetched: lastFetched ?? this.lastFetched,
       );
   IngredientTable copyWithCompanion(IngredientsCompanion data) {
     return IngredientTable(
       id: data.id.present ? data.id.value : this.id,
       data: data.data.present ? data.data.value : this.data,
-      lastUpdate:
-          data.lastUpdate.present ? data.lastUpdate.value : this.lastUpdate,
+      lastFetched:
+          data.lastFetched.present ? data.lastFetched.value : this.lastFetched,
     );
   }
 
@@ -142,51 +144,51 @@ class IngredientTable extends DataClass implements Insertable<IngredientTable> {
     return (StringBuffer('IngredientTable(')
           ..write('id: $id, ')
           ..write('data: $data, ')
-          ..write('lastUpdate: $lastUpdate')
+          ..write('lastFetched: $lastFetched')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, data, lastUpdate);
+  int get hashCode => Object.hash(id, data, lastFetched);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is IngredientTable &&
           other.id == this.id &&
           other.data == this.data &&
-          other.lastUpdate == this.lastUpdate);
+          other.lastFetched == this.lastFetched);
 }
 
 class IngredientsCompanion extends UpdateCompanion<IngredientTable> {
   final Value<int> id;
   final Value<String> data;
-  final Value<DateTime> lastUpdate;
+  final Value<DateTime> lastFetched;
   final Value<int> rowid;
   const IngredientsCompanion({
     this.id = const Value.absent(),
     this.data = const Value.absent(),
-    this.lastUpdate = const Value.absent(),
+    this.lastFetched = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   IngredientsCompanion.insert({
     required int id,
     required String data,
-    required DateTime lastUpdate,
+    required DateTime lastFetched,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         data = Value(data),
-        lastUpdate = Value(lastUpdate);
+        lastFetched = Value(lastFetched);
   static Insertable<IngredientTable> custom({
     Expression<int>? id,
     Expression<String>? data,
-    Expression<DateTime>? lastUpdate,
+    Expression<DateTime>? lastFetched,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (data != null) 'data': data,
-      if (lastUpdate != null) 'last_update': lastUpdate,
+      if (lastFetched != null) 'last_fetched': lastFetched,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -194,12 +196,12 @@ class IngredientsCompanion extends UpdateCompanion<IngredientTable> {
   IngredientsCompanion copyWith(
       {Value<int>? id,
       Value<String>? data,
-      Value<DateTime>? lastUpdate,
+      Value<DateTime>? lastFetched,
       Value<int>? rowid}) {
     return IngredientsCompanion(
       id: id ?? this.id,
       data: data ?? this.data,
-      lastUpdate: lastUpdate ?? this.lastUpdate,
+      lastFetched: lastFetched ?? this.lastFetched,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -213,8 +215,8 @@ class IngredientsCompanion extends UpdateCompanion<IngredientTable> {
     if (data.present) {
       map['data'] = Variable<String>(data.value);
     }
-    if (lastUpdate.present) {
-      map['last_update'] = Variable<DateTime>(lastUpdate.value);
+    if (lastFetched.present) {
+      map['last_fetched'] = Variable<DateTime>(lastFetched.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -227,7 +229,7 @@ class IngredientsCompanion extends UpdateCompanion<IngredientTable> {
     return (StringBuffer('IngredientsCompanion(')
           ..write('id: $id, ')
           ..write('data: $data, ')
-          ..write('lastUpdate: $lastUpdate, ')
+          ..write('lastFetched: $lastFetched, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -249,60 +251,16 @@ typedef $$IngredientsTableCreateCompanionBuilder = IngredientsCompanion
     Function({
   required int id,
   required String data,
-  required DateTime lastUpdate,
+  required DateTime lastFetched,
   Value<int> rowid,
 });
 typedef $$IngredientsTableUpdateCompanionBuilder = IngredientsCompanion
     Function({
   Value<int> id,
   Value<String> data,
-  Value<DateTime> lastUpdate,
+  Value<DateTime> lastFetched,
   Value<int> rowid,
 });
-
-class $$IngredientsTableTableManager extends RootTableManager<
-    _$IngredientDatabase,
-    $IngredientsTable,
-    IngredientTable,
-    $$IngredientsTableFilterComposer,
-    $$IngredientsTableOrderingComposer,
-    $$IngredientsTableCreateCompanionBuilder,
-    $$IngredientsTableUpdateCompanionBuilder> {
-  $$IngredientsTableTableManager(
-      _$IngredientDatabase db, $IngredientsTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer:
-              $$IngredientsTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$IngredientsTableOrderingComposer(ComposerState(db, table)),
-          updateCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            Value<String> data = const Value.absent(),
-            Value<DateTime> lastUpdate = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              IngredientsCompanion(
-            id: id,
-            data: data,
-            lastUpdate: lastUpdate,
-            rowid: rowid,
-          ),
-          createCompanionCallback: ({
-            required int id,
-            required String data,
-            required DateTime lastUpdate,
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              IngredientsCompanion.insert(
-            id: id,
-            data: data,
-            lastUpdate: lastUpdate,
-            rowid: rowid,
-          ),
-        ));
-}
 
 class $$IngredientsTableFilterComposer
     extends FilterComposer<_$IngredientDatabase, $IngredientsTable> {
@@ -317,8 +275,8 @@ class $$IngredientsTableFilterComposer
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
-  ColumnFilters<DateTime> get lastUpdate => $state.composableBuilder(
-      column: $state.table.lastUpdate,
+  ColumnFilters<DateTime> get lastFetched => $state.composableBuilder(
+      column: $state.table.lastFetched,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 }
@@ -336,11 +294,80 @@ class $$IngredientsTableOrderingComposer
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
-  ColumnOrderings<DateTime> get lastUpdate => $state.composableBuilder(
-      column: $state.table.lastUpdate,
+  ColumnOrderings<DateTime> get lastFetched => $state.composableBuilder(
+      column: $state.table.lastFetched,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 }
+
+class $$IngredientsTableTableManager extends RootTableManager<
+    _$IngredientDatabase,
+    $IngredientsTable,
+    IngredientTable,
+    $$IngredientsTableFilterComposer,
+    $$IngredientsTableOrderingComposer,
+    $$IngredientsTableCreateCompanionBuilder,
+    $$IngredientsTableUpdateCompanionBuilder,
+    (
+      IngredientTable,
+      BaseReferences<_$IngredientDatabase, $IngredientsTable, IngredientTable>
+    ),
+    IngredientTable,
+    PrefetchHooks Function()> {
+  $$IngredientsTableTableManager(
+      _$IngredientDatabase db, $IngredientsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$IngredientsTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$IngredientsTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> data = const Value.absent(),
+            Value<DateTime> lastFetched = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              IngredientsCompanion(
+            id: id,
+            data: data,
+            lastFetched: lastFetched,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required int id,
+            required String data,
+            required DateTime lastFetched,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              IngredientsCompanion.insert(
+            id: id,
+            data: data,
+            lastFetched: lastFetched,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$IngredientsTableProcessedTableManager = ProcessedTableManager<
+    _$IngredientDatabase,
+    $IngredientsTable,
+    IngredientTable,
+    $$IngredientsTableFilterComposer,
+    $$IngredientsTableOrderingComposer,
+    $$IngredientsTableCreateCompanionBuilder,
+    $$IngredientsTableUpdateCompanionBuilder,
+    (
+      IngredientTable,
+      BaseReferences<_$IngredientDatabase, $IngredientsTable, IngredientTable>
+    ),
+    IngredientTable,
+    PrefetchHooks Function()>;
 
 class $IngredientDatabaseManager {
   final _$IngredientDatabase _db;
